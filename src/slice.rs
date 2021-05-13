@@ -9,6 +9,7 @@ use alloc::boxed::Box;
 use std::vec::Vec;
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
+use object_pool::Reusable;
 
 /// A managed slice.
 ///
@@ -31,7 +32,8 @@ pub enum ManagedSlice<'a, T: 'a> {
     Borrowed(&'a mut [T]),
     /// Owned variant, only available with the `std` or `alloc` feature enabled.
     #[cfg(any(feature = "std", feature = "alloc"))]
-    Owned(Vec<T>)
+    Owned(Vec<T>),
+    Reusable(Reusable<Vec<T>>)
 }
 
 impl<'a, T: 'a> fmt::Debug for ManagedSlice<'a, T>
@@ -40,7 +42,8 @@ impl<'a, T: 'a> fmt::Debug for ManagedSlice<'a, T>
         match self {
             &ManagedSlice::Borrowed(ref x) => write!(f, "Borrowed({:?})", x),
             #[cfg(any(feature = "std", feature = "alloc"))]
-            &ManagedSlice::Owned(ref x)    => write!(f, "Owned({:?})", x)
+            &ManagedSlice::Owned(ref x)    => write!(f, "Owned({:?})", x),
+            &ManagedSlice::Reusable(ref _x)    => write!(f, "Reusable()")
         }
     }
 }
@@ -77,6 +80,12 @@ impl<'a, T: 'a> From<Vec<T>> for ManagedSlice<'a, T> {
     }
 }
 
+impl<'a, T: 'a> From<Reusable<Vec<T>>> for ManagedSlice<'a, T> {
+    fn from(value: Reusable<Vec<T>>) -> Self {
+        ManagedSlice::Reusable(value)
+    }
+}
+
 impl<'a, T: 'a> Deref for ManagedSlice<'a, T> {
     type Target = [T];
 
@@ -84,7 +93,8 @@ impl<'a, T: 'a> Deref for ManagedSlice<'a, T> {
         match self {
             &ManagedSlice::Borrowed(ref value) => value,
             #[cfg(any(feature = "std", feature = "alloc"))]
-            &ManagedSlice::Owned(ref value) => value
+            &ManagedSlice::Owned(ref value) => value,
+            &ManagedSlice::Reusable(ref value) => value
         }
     }
 }
@@ -94,7 +104,8 @@ impl<'a, T: 'a> DerefMut for ManagedSlice<'a, T> {
         match self {
             &mut ManagedSlice::Borrowed(ref mut value) => value,
             #[cfg(any(feature = "std", feature = "alloc"))]
-            &mut ManagedSlice::Owned(ref mut value) => value
+            &mut ManagedSlice::Owned(ref mut value) => value,
+            &mut ManagedSlice::Reusable(ref mut value) => value
         }
     }
 }

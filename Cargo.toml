@@ -11,6 +11,9 @@ keywords = ["ownership"]
 categories = ["embedded"]
 license = "0BSD"
 
+[dependencies]
+object-pool = { git = "https://github.com/gopakumarce/object-pool.git", branch = "gopa-objpool" }
+
 [features]
 std = []
 alloc = []

@@ -8,6 +8,8 @@ extern crate std;
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 extern crate alloc;
 
+extern crate object_pool;
+
 mod object;
 mod slice;
 mod slotmap;
