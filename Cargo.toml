@@ -12,7 +12,7 @@ categories = ["embedded"]
 license = "0BSD"
 
 [dependencies]
-object-pool = { git = "https://github.com/gopakumarce/object-pool.git", branch = "gopa-objpool" }
+object-pool = { git = "https://github.com/nextensio/object-pool.git", branch = "nextensio-alpha" }
 
 [features]
 std = []
